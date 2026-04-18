@@ -1,0 +1,20 @@
+{
+  "name": "own-view",
+  "version": "1.0.0",
+  "description": "Privacy screen overlay - blur everything except where your cursor is",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && tauri build",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:dev:linux": "GDK_BACKEND=x11 tauri dev"
+  },
+  "keywords": ["privacy", "screen", "blur", "spotlight"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@tauri-apps/cli": "^2",
+    "vite": "^7"
+  }
+}
