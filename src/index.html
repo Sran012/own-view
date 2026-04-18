@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Own View - Settings</title>
+  <style>
+    :root {
+      --accent: #a61e2d;
+      --accent-strong: #c52a3d;
+      --accent-soft: rgba(166, 30, 45, 0.18);
+      --panel: #141414;
+      --panel-alt: #1b1214;
+      --border: #2a1a1d;
+      --muted: #8b7d80;
+      --text: #e7e0e1;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0a0a;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .container { max-width: 440px; width: 100%; }
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 0.3rem;
+      background: linear-gradient(135deg, #f2d7db 0%, var(--accent-strong) 55%, #6e101e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle { color: var(--muted); font-size: 0.85rem; margin-bottom: 1.5rem; }
+    .status {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.8rem 1rem; background: var(--panel);
+      border-radius: 10px; margin-bottom: 1.2rem;
+      border: 1px solid var(--border);
+    }
+    .status-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #333; transition: background 0.3s;
+    }
+    .status-dot.active {
+      background: #4ade80;
+      box-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
+    }
+    .status-text { font-size: 0.85rem; color: #b4a7aa; }
+    .shortcut {
+      display: inline-block; background: var(--panel-alt);
+      padding: 0.15rem 0.4rem; border-radius: 4px;
+      font-family: monospace; font-size: 0.8rem;
+      border: 1px solid var(--border); color: #f0d8db;
+    }
+    .section { margin-bottom: 1.2rem; }
+    .section-title {
+      font-size: 0.7rem; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #73575d;
+      margin-bottom: 0.6rem; font-weight: 600;
+    }
+    .mode-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem;
+    }
+    .mode-btn {
+      background: var(--panel); border: 2px solid var(--border);
+      color: #ccc; padding: 0.8rem 0.4rem;
+      border-radius: 10px; cursor: pointer;
+      text-align: center; transition: all 0.2s;
+    }
+    .mode-btn:hover { border-color: var(--accent); background: #211315; }
+    .mode-btn.active {
+      border-color: var(--accent); background: var(--accent-soft);
+      color: #fff;
+    }
+    .mode-icon { font-size: 1.3rem; margin-bottom: 0.3rem; color: #f0c7cd; }
+    .mode-name { font-size: 0.75rem; font-weight: 500; }
+    .mode-desc { font-size: 0.65rem; color: var(--muted); margin-top: 0.2rem; }
+    .slider-group { margin-bottom: 0.8rem; }
+    .slider-group.hidden { display: none; }
+    .slider-label {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 0.4rem;
+      font-size: 0.85rem;
+    }
+    .slider-value {
+      color: #e0a9b1; font-weight: 600;
+      font-family: monospace; font-size: 0.8rem;
+    }
+    input[type="range"] {
+      width: 100%; height: 4px;
+      -webkit-appearance: none; appearance: none;
+      background: #2a1a1d; border-radius: 2px; outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--accent); cursor: pointer;
+      border: 2px solid #0a0a0a;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--accent); cursor: pointer;
+      border: 2px solid #0a0a0a;
+    }
+    .toggle-row {
+      display: flex; justify-content: space-between;
+      align-items: center; padding: 0.6rem 0;
+      border-bottom: 1px solid #1f1517;
+    }
+    .toggle-label { font-size: 0.85rem; }
+    .toggle {
+      position: relative; width: 40px; height: 22px;
+      background: #2a1a1d; border-radius: 11px;
+      cursor: pointer; transition: background 0.3s;
+    }
+    .toggle.active { background: var(--accent); }
+    .toggle-knob {
+      position: absolute; top: 2px; left: 2px;
+      width: 18px; height: 18px; background: white;
+      border-radius: 50%; transition: left 0.3s;
+    }
+    .toggle.active .toggle-knob { left: 20px; }
+    .footer {
+      margin-top: 1.5rem; text-align: center;
+      font-size: 0.7rem; color: #5e4045;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Own View</h1>
+    <p class="subtitle">Focused viewing overlay for shared spaces and screen privacy</p>
+
+    <div class="status">
+      <div class="status-dot" id="statusDot"></div>
+      <span class="status-text">
+        Press <span class="shortcut" id="shortcutDisplay">Ctrl+Alt+P</span> to toggle the focus overlay
+      </span>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Focus Mode</div>
+      <div class="mode-grid">
+        <button class="mode-btn active" data-mode="spotlight">
+          <div class="mode-icon">&#x25CE;</div>
+          <div class="mode-name">Spotlight</div>
+          <div class="mode-desc">Circular focus that follows your cursor</div>
+        </button>
+        <button class="mode-btn" data-mode="window">
+          <div class="mode-icon">&#x25A3;</div>
+          <div class="mode-name">Window</div>
+          <div class="mode-desc">Rectangular focus that follows your cursor</div>
+        </button>
+        <button class="mode-btn" data-mode="full">
+          <div class="mode-icon">&#x25FC;</div>
+          <div class="mode-name">Full Cover</div>
+          <div class="mode-desc">Dim the entire screen evenly</div>
+        </button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Settings</div>
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>Overlay Darkness</span>
+          <span class="slider-value" id="opacityValue">88%</span>
+        </div>
+        <input type="range" id="opacitySlider" min="50" max="100" value="88">
+      </div>
+      <div class="slider-group" id="focusSizeGroup">
+        <div class="slider-label">
+          <span>Focus Size</span>
+          <span class="slider-value" id="spotlightValue">150px</span>
+        </div>
+        <input type="range" id="spotlightSlider" min="50" max="400" value="150">
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Preferences</div>
+      <div class="toggle-row">
+        <span class="toggle-label">Start on boot</span>
+        <div class="toggle" id="autoStartToggle">
+          <div class="toggle-knob"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">Own View v1.0.0</div>
+  </div>
+
+  <script>
+    const { invoke } = window.__TAURI__.core;
+    const { listen } = window.__TAURI__.event;
+
+    let config = {
+      hotkey: "ctrl+alt+p",
+      blur_radius: 25,
+      spotlight_radius: 150,
+      mode: "spotlight",
+      auto_start: false,
+      overlay_opacity: 0.88
+    };
+
+    async function loadConfig() {
+      try {
+        config = await invoke('get_config');
+        applyConfig();
+        updateOverlayStatus(await invoke('is_overlay_visible'));
+      } catch (e) {
+        console.error('Failed to load config:', e);
+      }
+    }
+
+    function updateOverlayStatus(visible) {
+      document.getElementById('statusDot').classList.toggle('active', visible);
+      document.querySelector('.status-text').innerHTML = visible
+        ? `Focus overlay is active. Press <span class="shortcut" id="shortcutDisplay">${config.hotkey.replace(/\+/g, ' + ')}</span> to dismiss`
+        : `Press <span class="shortcut" id="shortcutDisplay">${config.hotkey.replace(/\+/g, ' + ')}</span> to toggle the focus overlay`;
+    }
+
+    function applyConfig() {
+      const opacity = Math.round(config.overlay_opacity * 100);
+      document.getElementById('opacitySlider').value = opacity;
+      document.getElementById('opacityValue').textContent = opacity + '%';
+      document.getElementById('spotlightSlider').value = config.spotlight_radius;
+      document.getElementById('spotlightValue').textContent = config.spotlight_radius + 'px';
+      document.getElementById('focusSizeGroup')
+        .classList.toggle('hidden', config.mode === 'full');
+
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === config.mode);
+      });
+
+      document.getElementById('autoStartToggle')
+        .classList.toggle('active', config.auto_start);
+      updateOverlayStatus(document.getElementById('statusDot').classList.contains('active'));
+    }
+
+    async function saveConfig() {
+      try {
+        await invoke('update_config', { config });
+      } catch (e) {
+        console.error('Failed to save config:', e);
+      }
+    }
+
+    document.getElementById('opacitySlider').addEventListener('input', (e) => {
+      config.overlay_opacity = parseInt(e.target.value) / 100;
+      document.getElementById('opacityValue').textContent = e.target.value + '%';
+      saveConfig();
+    });
+
+    document.getElementById('spotlightSlider').addEventListener('input', (e) => {
+      config.spotlight_radius = parseInt(e.target.value);
+      document.getElementById('spotlightValue').textContent = config.spotlight_radius + 'px';
+      saveConfig();
+    });
+
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const mode = btn.dataset.mode;
+        config.mode = mode;
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        await invoke('set_mode', { mode });
+        saveConfig();
+      });
+    });
+
+    document.getElementById('autoStartToggle').addEventListener('click', () => {
+      config.auto_start = !config.auto_start;
+      document.getElementById('autoStartToggle')
+        .classList.toggle('active', config.auto_start);
+      saveConfig();
+    });
+
+    listen('config-updated', async () => { await loadConfig(); });
+    listen('overlay-visibility-changed', (event) => {
+      updateOverlayStatus(Boolean(event.payload));
+    });
+
+    loadConfig();
+  </script>
+</body>
+</html>
