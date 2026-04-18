@@ -1,0 +1,24 @@
+[package]
+name = "own-view"
+version = "1.0.0"
+description = "Privacy screen overlay - blur everything except where your cursor is"
+edition = "2021"
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "webview-data-url"] }
+tauri-plugin-shell = "2"
+tauri-plugin-global-shortcut = "2"
+tauri-plugin-single-instance = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+dirs = "5"
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+cocoa = "0.26"
+objc = "0.2"
+
+[build-dependencies]
+tauri-build = "2"
